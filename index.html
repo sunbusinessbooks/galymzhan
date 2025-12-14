@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galymzhan — ИИ-наставник для предпринимателей</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23E85D04'/%3E%3Cstop offset='100%25' style='stop-color:%23DC2F02'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23bg)'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E⁜%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Geologica:wght@300;400;500&display=swap" rel="stylesheet">
@@ -364,7 +365,6 @@
 
     <script>
         // === КОНФИГУРАЦИЯ ===
-        // ВАЖНО: Замени на свой ключ Groq
         const GROQ_API_KEY = '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';
         const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
         const MODEL = 'llama-3.3-70b-versatile';
@@ -407,13 +407,16 @@
         const chatInput = document.getElementById('chatInput');
         const chatSend = document.getElementById('chatSend');
 
-        // Добавить сообщение в чат
+        // Добавить сообщение в чат (без автоскролла для сообщений пользователя)
         function addMessage(text, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
             messageDiv.innerHTML = text.replace(/\n/g, '<br>');
             chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Скроллим только для ответов бота
+            if (!isUser) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
         }
 
         // Показать индикатор печати
@@ -498,7 +501,9 @@
             hideTyping();
             addMessage(response, false);
             chatSend.disabled = false;
-            chatInput.focus();
+            
+            // Убираем фокус с input — скрывает клавиатуру на мобильных
+            chatInput.blur();
         }
 
         // Event listeners
@@ -506,9 +511,6 @@
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSend();
         });
-
-        // Фокус на инпут при загрузке
-        chatInput.focus();
     </script>
 </body>
 </html>
