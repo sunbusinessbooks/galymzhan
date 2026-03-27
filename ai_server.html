@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI-сервер на 4× A100 — мастер-документ</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg2:#111936;
+      --card:#121a34;
+      --line:#2b3b6e;
+      --text:#edf2ff;
+      --muted:#b8c2e6;
+      --accent:#7aa2ff;
+      --accent2:#73e0c1;
+      --warn:#ffd166;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),#0f1530 40%, #0d1328);color:var(--text);font:16px/1.55 Inter,Segoe UI,Arial,sans-serif}
+    body{padding:32px}
+    .doc{max-width:1100px;margin:0 auto}
+    .hero{padding:32px;border:1px solid var(--line);border-radius:24px;background:radial-gradient(circle at top right, rgba(122,162,255,.18), transparent 35%), linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    h1,h2,h3{line-height:1.2;margin:0 0 12px}
+    h1{font-size:42px}
+    h2{font-size:28px;margin-top:40px}
+    h3{font-size:20px;margin-top:24px}
+    p{margin:10px 0;color:var(--text)}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:18px}
+    .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));border:1px solid var(--line);border-radius:20px;padding:20px}
+    .tag{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(122,162,255,.12);border:1px solid rgba(122,162,255,.35);color:#dce6ff;font-size:13px;margin:4px 6px 0 0}
+    .list{padding-left:20px;margin:8px 0}
+    .list li{margin:6px 0;color:var(--muted)}
+    .section{margin-top:26px}
+    .diagram{background:linear-gradient(180deg,#101831,#0d1429);border:1px solid var(--line);border-radius:22px;padding:18px;overflow:auto}
+    svg{width:100%;height:auto;display:block}
+    .small{font-size:14px;color:var(--muted)}
+    .footer{margin-top:42px;padding:18px 22px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)}
+    .hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:28px 0}
+    .kpi{font-size:30px;font-weight:700}
+    .note{border-left:4px solid var(--accent2);padding:10px 14px;background:rgba(115,224,193,.06);border-radius:10px;margin:12px 0}
+    .warn{border-left-color:var(--warn);background:rgba(255,209,102,.07)}
+    @media print{
+      body{background:#fff;color:#111;padding:0}
+      .hero,.card,.diagram,.footer{box-shadow:none;background:#fff;color:#111;border-color:#bbb}
+      .muted,.small,.list li{color:#333}
+      :root{--text:#111;--muted:#333;--line:#bbb;--accent:#335eea;--accent2:#0d9488}
+      .doc{max-width:none}
+      .section,.card,.diagram{break-inside:avoid-page}
+    }
+    @media (max-width:900px){.g2,.g3{grid-template-columns:1fr} h1{font-size:34px}}
+  </style>
+</head>
+<body>
+<div class="doc">
+  <section class="hero">
+    <div class="tag">Master document</div>
+    <div class="tag">4× NVIDIA A100</div>
+    <div class="tag">LLM + Vision + RAG + OCR + Agents</div>
+    <h1>AI-сервер на 4× A100</h1>
+    <p class="muted">Цельный self-contained документ для запуска: железо, софт, правильный RAG, продовый pipeline, OCR-сценарии, агентный слой и 10 встроенных схем без внешних зависимостей.</p>
+    <div class="grid g3 section">
+      <div class="card"><div class="kpi">1</div><div>Единый AI-узел</div></div>
+      <div class="card"><div class="kpi">4</div><div>GPU с жёсткими ролями</div></div>
+      <div class="card"><div class="kpi">10</div><div>Схем внутри документа</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Как упаковать без компромиссов</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Рекомендуемый формат</h3>
+        <p><b>Один master HTML</b> как единый источник правды. В нём должны быть:</p>
+        <ul class="list">
+          <li>полный текст архитектуры;</li>
+          <li>встроенные SVG-схемы;</li>
+          <li>иконки и пиктограммы без внешних ссылок;</li>
+          <li>версии сервисов и моделей;</li>
+          <li>блоки для печати в PDF.</li>
+        </ul>
+        <div class="note">Плюс такого формата: он открывается в любом браузере, печатается в PDF, отправляется как один файл и не разваливается из-за отсутствующих картинок.</div>
+      </div>
+      <div class="card">
+        <h3>Что ещё держать рядом</h3>
+        <ul class="list">
+          <li><b>/docs</b> — этот master document;</li>
+          <li><b>/infra</b> — docker-compose, k8s, ansible, terraform;</li>
+          <li><b>/rag</b> — ingestion, chunking, retrieval, reranking;</li>
+          <li><b>/services</b> — API и оркестратор;</li>
+          <li><b>/benchmarks</b> — тесты качества и latency;</li>
+          <li><b>/ops</b> — логи, мониторинг, runbooks.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <section class="section">
+    <h2>1. Концепция системы</h2>
+    <p>Сервер на 4× A100 — это не просто хост для моделей. Это <b>локальный AI Core Node</b>: единый узел, который принимает запрос, направляет его в нужный сервис, объединяет результаты и возвращает контролируемый ответ.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7aa2ff"/><stop offset="1" stop-color="#73e0c1"/></linearGradient>
+        </defs>
+        <rect x="25" y="90" width="140" height="120" rx="18" fill="#182347" stroke="#4662a8"/>
+        <text x="95" y="140" text-anchor="middle" fill="#edf2ff" font-size="22">Пользователь</text>
+        <text x="95" y="170" text-anchor="middle" fill="#b8c2e6" font-size="14">чат / API / UI</text>
+        <rect x="240" y="70" width="180" height="160" rx="22" fill="url(#g1)" opacity=".18" stroke="#7aa2ff"/>
+        <text x="330" y="135" text-anchor="middle" fill="#edf2ff" font-size="26">Оркестратор</text>
+        <text x="330" y="165" text-anchor="middle" fill="#dbe6ff" font-size="15">routing · policy · memory</text>
+        <rect x="520" y="25" width="150" height="70" rx="18" fill="#16213f" stroke="#4662a8"/>
+        <rect x="700" y="25" width="150" height="70" rx="18" fill="#16213f" stroke="#4662a8"/>
+        <rect x="520" y="115" width="150" height="70" rx="18" fill="#16213f" stroke="#4662a8"/>
+        <rect x="700" y="115" width="150" height="70" rx="18" fill="#16213f" stroke="#4662a8"/>
+        <rect x="610" y="205" width="150" height="70" rx="18" fill="#16213f" stroke="#4662a8"/>
+        <text x="595" y="67" text-anchor="middle" fill="#edf2ff" font-size="22">LLM</text>
+        <text x="775" y="67" text-anchor="middle" fill="#edf2ff" font-size="22">Vision</text>
+        <text x="595" y="157" text-anchor="middle" fill="#edf2ff" font-size="22">RAG</text>
+        <text x="775" y="157" text-anchor="middle" fill="#edf2ff" font-size="22">OCR</text>
+        <text x="685" y="247" text-anchor="middle" fill="#edf2ff" font-size="22">Agents</text>
+        <path d="M165 150 H230" stroke="#7aa2ff" stroke-width="4" marker-end="url(#a)"/>
+        <path d="M420 90 C470 90,470 60,520 60" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#a)"/>
+        <path d="M420 110 C560 110,560 60,700 60" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#a)"/>
+        <path d="M420 160 C470 160,470 150,520 150" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#a)"/>
+        <path d="M420 180 C560 180,560 150,700 150" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#a)"/>
+        <path d="M420 200 C520 200,540 240,610 240" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#a)"/>
+        <defs>
+          <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#7aa2ff"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>2. Железо: производственная конфигурация</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Рекомендуемая база</h3>
+        <ul class="list">
+          <li>4× NVIDIA A100 40/80 GB</li>
+          <li>AMD EPYC или Intel Xeon серверного класса</li>
+          <li>256–512 GB ECC RAM</li>
+          <li>2–4× NVMe enterprise для hot layer</li>
+          <li>отдельный слой SSD/HDD под архив и датасеты</li>
+          <li>10/25 GbE, лучше с запасом под кластеризацию</li>
+          <li>redundant PSU и продуманное охлаждение</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Почему один узел</h3>
+        <ul class="list">
+          <li>минимальная задержка между сервисами;</li>
+          <li>простая отладка и контроль;</li>
+          <li>меньше сетевых бутылочных горлышек;</li>
+          <li>удобное закрепление GPU за сервисами;</li>
+          <li>проще вводить observability и ограничения.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="40" width="820" height="180" rx="24" fill="#111936" stroke="#4662a8"/>
+        <rect x="70" y="75" width="140" height="110" rx="18" fill="#172445" stroke="#5d7dd6"/>
+        <rect x="230" y="75" width="140" height="110" rx="18" fill="#172445" stroke="#5d7dd6"/>
+        <rect x="390" y="75" width="140" height="110" rx="18" fill="#172445" stroke="#5d7dd6"/>
+        <rect x="550" y="75" width="140" height="110" rx="18" fill="#172445" stroke="#5d7dd6"/>
+        <rect x="710" y="75" width="110" height="110" rx="18" fill="#15203d" stroke="#4f68b8"/>
+        <text x="140" y="120" text-anchor="middle" fill="#edf2ff" font-size="26">GPU1</text>
+        <text x="300" y="120" text-anchor="middle" fill="#edf2ff" font-size="26">GPU2</text>
+        <text x="460" y="120" text-anchor="middle" fill="#edf2ff" font-size="26">GPU3</text>
+        <text x="620" y="120" text-anchor="middle" fill="#edf2ff" font-size="26">GPU4</text>
+        <text x="765" y="120" text-anchor="middle" fill="#edf2ff" font-size="20">CPU</text>
+        <text x="140" y="150" text-anchor="middle" fill="#b8c2e6" font-size="14">LLM</text>
+        <text x="300" y="150" text-anchor="middle" fill="#b8c2e6" font-size="14">Vision</text>
+        <text x="460" y="150" text-anchor="middle" fill="#b8c2e6" font-size="14">Embeddings/RAG</text>
+        <text x="620" y="150" text-anchor="middle" fill="#b8c2e6" font-size="14">Agents/Buffer</text>
+        <text x="765" y="150" text-anchor="middle" fill="#b8c2e6" font-size="14">Routing/API</text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>3. Жёсткое разделение ролей по GPU</h2>
+    <div class="grid g2">
+      <div class="card"><h3>GPU1 — основная LLM</h3><p>Модели: Qwen2.5, Llama 3.x, Mixtral, DeepSeek. Задачи: чат, reasoning, summarization, tool routing, final answer synthesis.</p></div>
+      <div class="card"><h3>GPU2 — multimodal / vision</h3><p>Модели: Qwen2-VL, LLaVA, Florence-2. Задачи: скриншоты, визуальные документы, интерфейсы, image-to-text, VQA.</p></div>
+      <div class="card"><h3>GPU3 — embeddings + retrieval</h3><p>Модели: BGE, E5, GTE, rerankers. Задачи: эмбеддинги, поиск, гибридное извлечение, reranking, сборка контекста.</p></div>
+      <div class="card"><h3>GPU4 — agents / code / reserve</h3><p>Модели: DeepSeek-Coder, Code Llama, planner/executor, batch jobs, тест новых пайплайнов, резерв под пиковую нагрузку.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>4. Софт-стек: конкретные службы</h2>
+    <div class="grid g3">
+      <div class="card"><h3>Инфраструктура</h3><p>Ubuntu Server, NVIDIA drivers, CUDA, Docker, Docker Compose, Proxmox VE или bare metal. При росте — Kubernetes.</p></div>
+      <div class="card"><h3>Model serving</h3><p>vLLM для LLM, TGI как альтернатива, SGLang для некоторых сценариев, Ollama — только для простых локальных экспериментов, не как основа production.</p></div>
+      <div class="card"><h3>OCR / Parsing</h3><p>PaddleOCR, Surya, DocTR, Unstructured, PyMuPDF, pdfplumber, Tesseract как fallback, layoutparser для структуры страниц.</p></div>
+      <div class="card"><h3>RAG / Data</h3><p>Qdrant как основной vector DB, PostgreSQL для метаданных, Redis для кэшей и очередей, MinIO для объектного слоя.</p></div>
+      <div class="card"><h3>Оркестрация</h3><p>FastAPI, Celery или Dramatiq, LangGraph или LlamaIndex workflows, Nginx/Traefik как edge-прослойка.</p></div>
+      <div class="card"><h3>Наблюдаемость</h3><p>Prometheus, Grafana, Loki, OpenTelemetry, Sentry, health checks, трассировка latency по этапам.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>5. Правильный RAG: не декоративный, а продовый</h2>
+    <p>Основная ошибка слабых систем — воспринимать RAG как «PDF загрузили → chunk сделали → embedding сделали → готово». Это даёт шум, потерю структуры, плохие ответы и нестабильность качества.</p>
+    <div class="grid g2">
+      <div class="card warn">
+        <h3>Плохой RAG</h3>
+        <ul class="list">
+          <li>нарезка только по символам;</li>
+          <li>игнор таблиц, колонок, шапок, футеров;</li>
+          <li>одна retrieval-стратегия;</li>
+          <li>нет reranking;</li>
+          <li>нет метаданных, source-trace и версионирования.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Правильный RAG</h3>
+        <ul class="list">
+          <li>ingestion с типизацией документа;</li>
+          <li>OCR и layout-aware parsing;</li>
+          <li>semantic chunking и parent-child chunks;</li>
+          <li>hybrid retrieval: BM25 + dense vectors;</li>
+          <li>reranking перед генерацией;</li>
+          <li>filters по источнику, дате, типу, отделу, языку;</li>
+          <li>контроль контекста и цитируемость.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 1080 250" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#7aa2ff"/></marker></defs>
+        <g font-family="Inter,Arial,sans-serif">
+          <rect x="20" y="65" width="120" height="100" rx="16" fill="#172445" stroke="#4f68b8"/><text x="80" y="108" text-anchor="middle" fill="#edf2ff" font-size="20">Docs</text><text x="80" y="132" text-anchor="middle" fill="#b8c2e6" font-size="13">PDF / IMG / TXT</text>
+          <rect x="170" y="65" width="120" height="100" rx="16" fill="#172445" stroke="#4f68b8"/><text x="230" y="108" text-anchor="middle" fill="#edf2ff" font-size="20">OCR</text><text x="230" y="132" text-anchor="middle" fill="#b8c2e6" font-size="13">layout aware</text>
+          <rect x="320" y="65" width="120" height="100" rx="16" fill="#172445" stroke="#4f68b8"/><text x="380" y="108" text-anchor="middle" fill="#edf2ff" font-size="20">Chunking</text><text x="380" y="132" text-anchor="middle" fill="#b8c2e6" font-size="13">semantic</text>
+          <rect x="470" y="65" width="120" height="100" rx="16" fill="#172445" stroke="#4f68b8"/><text x="530" y="108" text-anchor="middle" fill="#edf2ff" font-size="20">Embeddings</text><text x="530" y="132" text-anchor="middle" fill="#b8c2e6" font-size="13">BGE/E5/GTE</text>
+          <rect x="620" y="65" width="120" height="100" rx="16" fill="#172445" stroke="#4f68b8"/><text x="680" y="108" text-anchor="middle" fill="#edf2ff" font-size="20">Qdrant</text><text x="680" y="132" text-anchor="middle" fill="#b8c2e6" font-size="13">vector store</text>
+          <rect x="770" y="35" width="120" height="70" rx="16" fill="#16213f" stroke="#4f68b8"/><text x="830" y="78" text-anchor="middle" fill="#edf2ff" font-size="18">BM25</text>
+          <rect x="770" y="125" width="120" height="70" rx="16" fill="#16213f" stroke="#4f68b8"/><text x="830" y="168" text-anchor="middle" fill="#edf2ff" font-size="18">Dense search</text>
+          <rect x="920" y="65" width="120" height="100" rx="16" fill="#172445" stroke="#4f68b8"/><text x="980" y="108" text-anchor="middle" fill="#edf2ff" font-size="20">Rerank</text><text x="980" y="132" text-anchor="middle" fill="#b8c2e6" font-size="13">BGE reranker</text>
+          <path d="M140 115 H165" stroke="#7aa2ff" stroke-width="4" marker-end="url(#arr)"/>
+          <path d="M290 115 H315" stroke="#7aa2ff" stroke-width="4" marker-end="url(#arr)"/>
+          <path d="M440 115 H465" stroke="#7aa2ff" stroke-width="4" marker-end="url(#arr)"/>
+          <path d="M590 115 H615" stroke="#7aa2ff" stroke-width="4" marker-end="url(#arr)"/>
+          <path d="M740 115 H765" stroke="#7aa2ff" stroke-width="4" marker-end="url(#arr)"/>
+          <path d="M890 115 H915" stroke="#7aa2ff" stroke-width="4" marker-end="url(#arr)"/>
+          <path d="M740 85 H770" stroke="#73e0c1" stroke-width="3" marker-end="url(#arr)"/>
+          <path d="M740 145 H770" stroke="#73e0c1" stroke-width="3" marker-end="url(#arr)"/>
+        </g>
+      </svg>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Рекомендуемые модели RAG</h3>
+        <ul class="list">
+          <li>Embeddings: BAAI/bge-large, bge-m3, intfloat/e5-large-v2, Alibaba-NLP/gte-large</li>
+          <li>Rerank: BAAI/bge-reranker-large, jina-reranker, Cohere Rerank если есть внешний сервис</li>
+          <li>Generation: Qwen2.5-Instruct, Llama 3.x Instruct, Mixtral</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Обязательные практики</h3>
+        <ul class="list">
+          <li>раздельные пайплайны для договоров, сканов, таблиц, регламентов;</li>
+          <li>хранение оригинального источника и координат chunk;</li>
+          <li>версионирование индекса;</li>
+          <li>benchmarks на recall@k, MRR, latency и groundedness.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>6. Поток обработки запроса</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="m" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#7aa2ff"/></marker></defs>
+        <rect x="50" y="140" width="140" height="80" rx="16" fill="#172445" stroke="#4f68b8"/>
+        <text x="120" y="187" text-anchor="middle" fill="#edf2ff" font-size="22">Запрос</text>
+        <rect x="260" y="120" width="180" height="120" rx="20" fill="#1a2650" stroke="#6d8fff"/>
+        <text x="350" y="170" text-anchor="middle" fill="#edf2ff" font-size="24">Оркестратор</text>
+        <text x="350" y="198" text-anchor="middle" fill="#b8c2e6" font-size="14">classification + routing</text>
+        <rect x="550" y="30" width="160" height="70" rx="16" fill="#16213f" stroke="#4f68b8"/><text x="630" y="73" text-anchor="middle" fill="#edf2ff" font-size="20">Текст → LLM</text>
+        <rect x="780" y="30" width="160" height="70" rx="16" fill="#16213f" stroke="#4f68b8"/><text x="860" y="73" text-anchor="middle" fill="#edf2ff" font-size="20">Изобр. → Vision</text>
+        <rect x="550" y="145" width="160" height="70" rx="16" fill="#16213f" stroke="#4f68b8"/><text x="630" y="188" text-anchor="middle" fill="#edf2ff" font-size="20">PDF → OCR/RAG</text>
+        <rect x="780" y="145" width="160" height="70" rx="16" fill="#16213f" stroke="#4f68b8"/><text x="860" y="188" text-anchor="middle" fill="#edf2ff" font-size="20">Код → Agent</text>
+        <rect x="665" y="260" width="160" height="70" rx="16" fill="#183259" stroke="#73e0c1"/><text x="745" y="303" text-anchor="middle" fill="#edf2ff" font-size="20">Сбор ответа</text>
+        <path d="M190 180 H250" stroke="#7aa2ff" stroke-width="4" marker-end="url(#m)"/>
+        <path d="M440 150 C490 120,500 70,550 65" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#m)"/>
+        <path d="M440 160 C600 140,650 60,780 65" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#m)"/>
+        <path d="M440 200 C490 200,500 180,550 180" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#m)"/>
+        <path d="M440 210 C620 230,680 190,780 180" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#m)"/>
+        <path d="M630 100 V250" stroke="#73e0c1" stroke-width="3" marker-end="url(#m)"/>
+        <path d="M860 100 V250" stroke="#73e0c1" stroke-width="3" marker-end="url(#m)"/>
+        <path d="M630 215 V250" stroke="#73e0c1" stroke-width="3" marker-end="url(#m)"/>
+        <path d="M860 215 V250" stroke="#73e0c1" stroke-width="3" marker-end="url(#m)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>7. OCR-платформа как прикладной кейс</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Для банков и документов</h3>
+        <ul class="list">
+          <li>сканы договоров и анкет;</li>
+          <li>извлечение реквизитов и полей;</li>
+          <li>поиск по архиву и сверка данных;</li>
+          <li>проверка полноты пакета документов;</li>
+          <li>выявление несовпадений и пропусков.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Пайплайн</h3>
+        <p>Upload → OCR → layout parsing → field extraction → embeddings → retrieval → explanation / validation / routing to operator.</p>
+      </div>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 980 220" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="x" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#7aa2ff"/></marker></defs>
+        <g>
+          <rect x="20" y="60" width="110" height="90" rx="16" fill="#172445" stroke="#4f68b8"/><text x="75" y="112" text-anchor="middle" fill="#edf2ff" font-size="18">Upload</text>
+          <rect x="160" y="60" width="110" height="90" rx="16" fill="#172445" stroke="#4f68b8"/><text x="215" y="112" text-anchor="middle" fill="#edf2ff" font-size="18">OCR</text>
+          <rect x="300" y="60" width="130" height="90" rx="16" fill="#172445" stroke="#4f68b8"/><text x="365" y="104" text-anchor="middle" fill="#edf2ff" font-size="18">Structure</text><text x="365" y="126" text-anchor="middle" fill="#b8c2e6" font-size="12">tables / fields</text>
+          <rect x="460" y="60" width="130" height="90" rx="16" fill="#172445" stroke="#4f68b8"/><text x="525" y="104" text-anchor="middle" fill="#edf2ff" font-size="18">Embeddings</text><text x="525" y="126" text-anchor="middle" fill="#b8c2e6" font-size="12">semantic index</text>
+          <rect x="620" y="60" width="110" height="90" rx="16" fill="#172445" stroke="#4f68b8"/><text x="675" y="112" text-anchor="middle" fill="#edf2ff" font-size="18">Search</text>
+          <rect x="760" y="60" width="90" height="90" rx="16" fill="#172445" stroke="#4f68b8"/><text x="805" y="112" text-anchor="middle" fill="#edf2ff" font-size="18">LLM</text>
+          <rect x="880" y="60" width="80" height="90" rx="16" fill="#183259" stroke="#73e0c1"/><text x="920" y="102" text-anchor="middle" fill="#edf2ff" font-size="16">API</text><text x="920" y="124" text-anchor="middle" fill="#b8c2e6" font-size="12">result</text>
+          <path d="M130 105 H155" stroke="#7aa2ff" stroke-width="4" marker-end="url(#x)"/>
+          <path d="M270 105 H295" stroke="#7aa2ff" stroke-width="4" marker-end="url(#x)"/>
+          <path d="M430 105 H455" stroke="#7aa2ff" stroke-width="4" marker-end="url(#x)"/>
+          <path d="M590 105 H615" stroke="#7aa2ff" stroke-width="4" marker-end="url(#x)"/>
+          <path d="M730 105 H755" stroke="#7aa2ff" stroke-width="4" marker-end="url(#x)"/>
+          <path d="M850 105 H875" stroke="#7aa2ff" stroke-width="4" marker-end="url(#x)"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>8. Агентный слой</h2>
+    <p>Агенты нужны не для красивого слова, а когда задача многошаговая: сначала разобрать запрос, потом получить данные, потом проверить правила, затем сформировать результат и отправить его дальше.</p>
+    <div class="grid g3">
+      <div class="card"><h3>Planner</h3><p>Разбивает цель на шаги.</p></div>
+      <div class="card"><h3>Executor</h3><p>Вызывает сервисы и инструменты.</p></div>
+      <div class="card"><h3>Verifier</h3><p>Проверяет groundedness, формат и полноту.</p></div>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 240" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="z" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#7aa2ff"/></marker></defs>
+        <rect x="60" y="80" width="180" height="90" rx="18" fill="#172445" stroke="#4f68b8"/><text x="150" y="120" text-anchor="middle" fill="#edf2ff" font-size="24">Planner</text>
+        <rect x="360" y="80" width="180" height="90" rx="18" fill="#172445" stroke="#4f68b8"/><text x="450" y="120" text-anchor="middle" fill="#edf2ff" font-size="24">Executor</text>
+        <rect x="660" y="80" width="180" height="90" rx="18" fill="#172445" stroke="#4f68b8"/><text x="750" y="120" text-anchor="middle" fill="#edf2ff" font-size="24">Verifier</text>
+        <path d="M240 125 H350" stroke="#7aa2ff" stroke-width="4" marker-end="url(#z)"/>
+        <path d="M540 125 H650" stroke="#7aa2ff" stroke-width="4" marker-end="url(#z)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>9. Наблюдаемость и эксплуатация</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Что измерять обязательно</h3>
+        <ul class="list">
+          <li>latency по этапам;</li>
+          <li>GPU utilization и memory pressure;</li>
+          <li>ошибки OCR и parsing;</li>
+          <li>retrieval recall, rerank lift;</li>
+          <li>quality drift по доменам;</li>
+          <li>стоимость запроса и размер контекста.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Службы</h3>
+        <ul class="list">
+          <li>Prometheus + Grafana;</li>
+          <li>Loki / Elasticsearch для логов;</li>
+          <li>OpenTelemetry для трассировки;</li>
+          <li>Sentry для ошибок приложения;</li>
+          <li>alerting в Telegram / Slack / почту.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>10. План внедрения без компромиссов</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Этап 1 — инфраструктура</h3>
+        <p>Поднять сервер, драйверы, контейнерную среду, модельный runtime, мониторинг, хранилища и API gateway.</p>
+      </div>
+      <div class="card">
+        <h3>Этап 2 — data plane</h3>
+        <p>Сделать ingestion, OCR, parsing, индексацию, Qdrant, метаданные, версионирование и quality checks.</p>
+      </div>
+      <div class="card">
+        <h3>Этап 3 — serving</h3>
+        <p>Развести роли по GPU, подключить LLM, vision, rerank, кэши, роутинг запросов и auth.</p>
+      </div>
+      <div class="card">
+        <h3>Этап 4 — eval + hardening</h3>
+        <p>Подготовить эталонные наборы, промерить latency, recall, hallucination rate, добавить политики ответа и резервирование.</p>
+      </div>
+    </div>
+    <div class="note">Правильная упаковка — это не один красивый текст. Это связка: master document + инфраструктурный код + тестовые наборы + наблюдаемость + контроль качества. Тогда систему можно реально внедрять, а не просто показывать.</div>
+  </section>
+
+  <section class="section">
+    <h2>11. Набор конкретных моделей и служб для старта</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Базовый production stack</h3>
+        <ul class="list">
+          <li>LLM serving: vLLM</li>
+          <li>Primary LLM: Qwen2.5-Instruct или Llama 3.x Instruct</li>
+          <li>Vision: Qwen2-VL / Florence-2</li>
+          <li>OCR: PaddleOCR + PyMuPDF + Unstructured</li>
+          <li>Embeddings: bge-m3 / e5-large-v2</li>
+          <li>Rerank: bge-reranker-large</li>
+          <li>Vector DB: Qdrant</li>
+          <li>API: FastAPI</li>
+          <li>Queue: Redis + Celery</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Необходимые инженерные слои</h3>
+        <ul class="list">
+          <li>RBAC и auth;</li>
+          <li>audit logs;</li>
+          <li>quota и rate limits;</li>
+          <li>prompt/version registry;</li>
+          <li>dataset registry;</li>
+          <li>offline eval и regression checks.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>12. Финальная схема: вся система целиком</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 1120 520" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="q" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#7aa2ff"/></marker></defs>
+        <rect x="30" y="210" width="140" height="100" rx="18" fill="#172445" stroke="#4f68b8"/>
+        <text x="100" y="255" text-anchor="middle" fill="#edf2ff" font-size="24">Users</text>
+        <text x="100" y="280" text-anchor="middle" fill="#b8c2e6" font-size="13">web · api · ops</text>
+
+        <rect x="230" y="180" width="180" height="160" rx="22" fill="#1a2650" stroke="#6d8fff"/>
+        <text x="320" y="245" text-anchor="middle" fill="#edf2ff" font-size="26">Gateway</text>
+        <text x="320" y="272" text-anchor="middle" fill="#b8c2e6" font-size="14">auth · routing · policy</text>
+
+        <rect x="480" y="45" width="170" height="90" rx="18" fill="#16213f" stroke="#4f68b8"/>
+        <text x="565" y="90" text-anchor="middle" fill="#edf2ff" font-size="22">GPU1 / LLM</text>
+        <text x="565" y="112" text-anchor="middle" fill="#b8c2e6" font-size="13">vLLM + Instruct model</text>
+
+        <rect x="710" y="45" width="170" height="90" rx="18" fill="#16213f" stroke="#4f68b8"/>
+        <text x="795" y="90" text-anchor="middle" fill="#edf2ff" font-size="22">GPU2 / Vision</text>
+        <text x="795" y="112" text-anchor="middle" fill="#b8c2e6" font-size="13">Qwen2-VL / Florence-2</text>
+
+        <rect x="480" y="190" width="170" height="90" rx="18" fill="#16213f" stroke="#4f68b8"/>
+        <text x="565" y="235" text-anchor="middle" fill="#edf2ff" font-size="22">GPU3 / RAG</text>
+        <text x="565" y="257" text-anchor="middle" fill="#b8c2e6" font-size="13">embeddings + rerank</text>
+
+        <rect x="710" y="190" width="170" height="90" rx="18" fill="#16213f" stroke="#4f68b8"/>
+        <text x="795" y="235" text-anchor="middle" fill="#edf2ff" font-size="22">GPU4 / Agents</text>
+        <text x="795" y="257" text-anchor="middle" fill="#b8c2e6" font-size="13">planner / executor</text>
+
+        <rect x="930" y="160" width="160" height="70" rx="18" fill="#172445" stroke="#4f68b8"/>
+        <text x="1010" y="203" text-anchor="middle" fill="#edf2ff" font-size="20">Qdrant</text>
+        <rect x="930" y="250" width="160" height="70" rx="18" fill="#172445" stroke="#4f68b8"/>
+        <text x="1010" y="293" text-anchor="middle" fill="#edf2ff" font-size="20">MinIO / PG</text>
+
+        <rect x="480" y="365" width="220" height="90" rx="18" fill="#183259" stroke="#73e0c1"/>
+        <text x="590" y="408" text-anchor="middle" fill="#edf2ff" font-size="22">Observability</text>
+        <text x="590" y="430" text-anchor="middle" fill="#b8c2e6" font-size="13">Prometheus · Grafana · Loki</text>
+
+        <rect x="740" y="365" width="220" height="90" rx="18" fill="#183259" stroke="#73e0c1"/>
+        <text x="850" y="408" text-anchor="middle" fill="#edf2ff" font-size="22">Document Ingestion</text>
+        <text x="850" y="430" text-anchor="middle" fill="#b8c2e6" font-size="13">OCR · parsing · indexing</text>
+
+        <path d="M170 260 H220" stroke="#7aa2ff" stroke-width="4" marker-end="url(#q)"/>
+        <path d="M410 210 C445 150,445 95,480 90" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#q)"/>
+        <path d="M410 220 C570 140,620 90,710 90" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#q)"/>
+        <path d="M410 270 C450 250,450 235,480 235" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#q)"/>
+        <path d="M410 290 C590 310,650 240,710 235" stroke="#7aa2ff" stroke-width="4" fill="none" marker-end="url(#q)"/>
+        <path d="M650 235 H920" stroke="#7aa2ff" stroke-width="4" marker-end="url(#q)"/>
+        <path d="M880 235 H920" stroke="#7aa2ff" stroke-width="4" marker-end="url(#q)"/>
+        <path d="M590 280 V355" stroke="#73e0c1" stroke-width="3" marker-end="url(#q)"/>
+        <path d="M795 280 V355" stroke="#73e0c1" stroke-width="3" marker-end="url(#q)"/>
+      </svg>
+    </div>
+  </section>
+
+  <div class="footer">
+    <h3>Итог</h3>
+    <p class="muted">Для применения без компромиссов держи <b>один self-contained master HTML</b> как главный документ, а рядом — инфраструктурный репозиторий с кодом развёртывания, ingestion/RAG пайплайнами, наблюдаемостью и evaluation. Тогда это становится не текстом о системе, а самой операционной основой проекта.</p>
+  </div>
+</div>
+</body>
+</html>
